@@ -6,6 +6,7 @@ var Stream = require('stream');
 var async = require('async');
 var _ = require('lodash');
 var Handlebars = require('handlebars');
+var juice = require('juice2');
 
 // If `nodemailer` has been defined globally we use that. This allows us to
 // easily replace `nodemailer` with a mockup when running tests.
@@ -23,7 +24,44 @@ var defaults = {
 function Horseshoe(type, opt) {
   this.type = type;
   this.options = _.extend({}, defaults, opt);
+  this.registerPartials();
 }
+
+//
+// ## Horseshoe.registerPartials()
+// 
+// Register Handlebars helpers
+// 
+Horseshoe.prototype.registerPartials = function registerPartials() {
+
+  // Get partials directory
+  var partialsPath = path.join( this.options.tmplPath, '..', 'partials' );
+
+  // Get all the files in the directory
+  fs.readdir( partialsPath, function readPartialsDirectory( err, files ) {
+
+    if ( err ) { return console.log( 'No such directory', partialsPath ); }
+
+    // Loop through the files
+    _.each( files, function parsePartial( file ) {
+
+      // Get the full path of each file and read it
+      var filePath = path.join( partialsPath, file ),
+          helperName = file.split( '.' )[ 0 ];
+
+      fs.readFile( filePath, function handleReadPartial( err, source ) {
+
+        // Register the handlebars helper
+        if ( err ) { return console.log( 'Partial file not readable', filePath ); }
+        Handlebars.registerPartial( helperName, source.toString() );
+
+      } );
+
+    } );
+
+  } );
+
+};
 
 //
 // ## Horseshoe.send()
@@ -119,6 +157,9 @@ Horseshoe.prototype.render = function (msg, cb) {
     // If template is already cached no need to re-compile.
     if (_.isFunction(cache[file])) {
       format.parse(msg, cache[file](msg.data));
+      if (key === 'html') {
+        msg.html = juice.inlineContent( msg.html, cache.styles );
+      }
       return cb();
     }
     that.compile(file, function (fn) {
@@ -127,9 +168,23 @@ Horseshoe.prototype.render = function (msg, cb) {
       } catch (exception) {
         return cb(exception);
       }
-      cache[file] = fn;
-      cb();
-    });
+      if (key === 'html') {
+        fs.readFile( path.join( tmplPath, '..', 'email.css' ), function( err, result ) { 
+          if ( !err ) {
+            cache.styles = result.toString();
+            if ( msg.data.theme ) { 
+              cache.styles += msg.data.theme;
+            }
+            msg.html = juice.inlineContent( msg.html, cache.styles );
+          }
+          cache[file] = fn;
+          cb();
+        } );
+      } else {
+        cache[file] = fn;
+        cb();
+      }
+    } );
   }, cb);
 };
 
