@@ -34,7 +34,8 @@ function Horseshoe(type, opt) {
 // 
 Horseshoe.prototype.registerPartials = function registerPartials() {
 
-  console.log( 'Registering partials' );
+  // If the partials are already registered, just return
+  if ( _.size( Handlebars.partials ) ) { return; }
 
   // Get partials directory
   var partialsPath = path.join( this.options.tmplPath, '..', 'partials' );
