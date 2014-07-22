@@ -22,7 +22,8 @@
     "nodemailer": "~0.6.0",
     "handlebars": "~1.3.0",
     "lodash": "^2.4.1",
-    "async": "~0.9.0"
+    "async": "~0.9.0",
+    "juice2": "~1.3.0"
   },
   "devDependencies": {
     "groc": "~0.6.3",
