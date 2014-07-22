@@ -10,10 +10,10 @@
   "author": "Lupo Montero <lupomontero@gmail.com> (http://lupomontero.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lupomontero/horseshoe"
+    "url": "https://github.com/ribot/horseshoe"
   },
   "bugs": {
-    "url": "http://github.com/lupomontero/horseshoe/issues"
+    "url": "http://github.com/ribot/horseshoe/issues"
   },
   "directories": {
     "test": "./test"

@@ -1,12 +1,12 @@
 // # Horseshoe
 
-var path = require('path');
-var fs = require('fs');
-var Stream = require('stream');
-var async = require('async');
-var _ = require('lodash');
-var Handlebars = require('handlebars');
-var juice = require('juice2');
+var path = require('path'),
+    fs = require('fs'),
+    Stream = require('stream'),
+    async = require('async'),
+    _ = require('lodash'),
+    Handlebars = require('handlebars'),
+    juice = require('juice2');
 
 // If `nodemailer` has been defined globally we use that. This allows us to
 // easily replace `nodemailer` with a mockup when running tests.
@@ -34,6 +34,8 @@ function Horseshoe(type, opt) {
 // 
 Horseshoe.prototype.registerPartials = function registerPartials() {
 
+  console.log( 'Registering partials' );
+
   // Get partials directory
   var partialsPath = path.join( this.options.tmplPath, '..', 'partials' );
 
@@ -53,6 +55,7 @@ Horseshoe.prototype.registerPartials = function registerPartials() {
 
         // Register the handlebars helper
         if ( err ) { return console.log( 'Partial file not readable', filePath ); }
+        console.log( 'Registered partial', filePath );
         Handlebars.registerPartial( helperName, source.toString() );
 
       } );
@@ -62,6 +65,7 @@ Horseshoe.prototype.registerPartials = function registerPartials() {
   } );
 
 };
+
 
 //
 // ## Horseshoe.send()
